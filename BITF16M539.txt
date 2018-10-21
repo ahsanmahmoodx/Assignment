@@ -1,0 +1,32 @@
+#include <stdio.h> 
+#include <unistd.h> 
+#include <stdlib.h> 
+#include <pthread.h> 
+#define size 1000 
+#define threadSize 10  
+int a[size];
+int sum[10]={0}; 
+int join=0;  
+void* sumArr(void* arg)
+{  
+    int thread_join=join++;
+    for (int i=thread_join*(size/10);i<(thread_join+1)*(size/10);i++) 
+        sum[thread_join]+=a[i]; 
+} 
+int main() 
+{
+    for(int i=0;i<1000;i++)
+    {
+	a[i]=i+1;
+    }
+    pthread_t threads[threadSize]; 
+    for (int i=0;i<threadSize;i++) 
+        pthread_create(&threads[i],NULL,sumArr,(void*)NULL); 
+    for (int i=0;i<threadSize;i++) 
+        pthread_join(threads[i],NULL); 
+    int total_sum =0; 
+    for (int i=0;i<threadSize;i++) 
+        total_sum+=sum[i];   
+    printf("Sum of threads=%d",&total_sum);   
+    return 0; 
+} 
